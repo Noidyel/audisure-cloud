@@ -1,0 +1,135 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    width: 80px;
+    height: auto;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+    color: #222;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+table th {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.status {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.needs-editing {
+    background-color: #dc3545;
+    color: white;
+}
+
+button, .back-link {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+button:hover, .back-link:hover {
+    background-color: #c82333;
+}
+
+input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-section {
+    margin-top: 20px;
+}
+
+.upload-message {
+    background-color: #f8f8f8;
+    border-left: 5px solid #dc3545;
+    padding: 12px;
+    margin-top: 15px;
+    word-break: break-word;
+}
+
+.table-responsive {
+    width: 95%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #dc3545;
+    color: white;
+    font-weight: normal;
+}
+
+td a {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
