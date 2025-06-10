@@ -1,35 +1,28 @@
 <?php
 session_start();
-include('../includes/db.php');
+require '../includes/db.php'; // assumes $pdo for PostgreSQL PDO connection
 
-// Clear any old session error
+// Clear old errors
 unset($_SESSION['error']);
 
-// Check if email and password are submitted
 if (isset($_POST['email'], $_POST['password'])) {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    // Prepare the SQL statement
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Check if user with the given email exists
-    if ($result && $result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-
-        // Verify the password
+    if ($user) {
         if (password_verify($password, $user['password'])) {
-            // Set session variables
+            // Set session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_status'] = $user['status'] ?? 'active';
-            $_SESSION['role'] = strtolower($user['role'] ?? 'user'); // default to 'user' if missing
+            $_SESSION['role'] = strtolower($user['role'] ?? 'user');
             $_SESSION['first_name'] = $user['first_name'] ?? 'User';
 
-            // Redirect based on role
+            // Redirect by role
             switch ($_SESSION['role']) {
                 case 'admin':
                     header("Location: ../admin/admin_dashboard.php");
@@ -38,7 +31,7 @@ if (isset($_POST['email'], $_POST['password'])) {
                     header("Location: ../users/user_dashboard.php");
                     break;
                 case 'applicant':
-                    header("Location: ../mobile/applicant_dashboard.php"); // Assuming an applicant dashboard exists
+                    header("Location: ../mobile/applicant_dashboard.php");
                     break;
                 default:
                     $_SESSION['error'] = "Unknown user role: " . htmlspecialchars($_SESSION['role']);
@@ -56,8 +49,5 @@ if (isset($_POST['email'], $_POST['password'])) {
     $_SESSION['error'] = "Both email and password are required.";
 }
 
-$conn->close();
 header("Location: ../login.php");
 exit();
-?>
-    
