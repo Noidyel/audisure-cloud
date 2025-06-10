@@ -28,8 +28,14 @@ if (isset($_GET['task_id'])) {
 // Handle task update
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['task_description'], $_POST['status'])) {
-        $task_description = $_POST['task_description'];
+        $task_description = trim($_POST['task_description']);
         $status = $_POST['status'];
+
+        if (empty($task_description)) {
+            $_SESSION['status_message'] = "❌ Task description cannot be empty";
+            header("Location: edit_tasks.php?task_id=$task_id");
+            exit();
+        }
 
         // Update task details
         $sql = "UPDATE tasks SET task_description = ?, status = ? WHERE task_id = ?";
@@ -37,7 +43,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bind_param('ssi', $task_description, $status, $task_id);
         $stmt->execute();
 
-        // Redirect back to task list after updating
+        // Set success message and redirect
+        $_SESSION['status_message'] = "✅ Task updated successfully";
         header("Location: assign_tasks.php");
         exit();
     }
@@ -47,10 +54,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Edit Task</title>
-    <link rel="stylesheet" href="../assets/css/admin_styles.css"> <!-- Link to your admin_styles.css -->
+    <link rel="stylesheet" href="../assets/css/admin_styles.css" />
     <style>
         .top-bar {
             display: flex;
@@ -128,14 +135,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!-- Logo on top right -->
 <div class="top-bar">
-    <img src="../assets/images/hcdrd_logo.png" alt="HCDRD Logo">
+    <img src="../assets/images/hcdrd_logo.png" alt="HCDRD Logo" />
 </div>
 
 <!-- Main content -->
 <div class="container">
     <h2>Edit Task</h2>
 
-    <form action="edit_tasks.php?task_id=<?= $task_id ?>" method="POST">
+    <form action="edit_tasks.php?task_id=<?= $task_id ?>" method="POST" onsubmit="return confirmUpdate();">
         <label for="task_description">Task Description</label>
         <textarea name="task_description" id="task_description" rows="4"><?= htmlspecialchars($task['task_description']) ?></textarea><br><br>
 
@@ -153,6 +160,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <a href="assign_tasks.php" class="back-button">← Back to Task List</a>
     </div>
 </div>
+
+<script>
+function confirmUpdate() {
+    return confirm('Are you sure you want to update this task?');
+}
+</script>
 
 </body>
 </html>

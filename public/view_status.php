@@ -1,6 +1,6 @@
 <?php
 include '../includes/auth_user.php';
-include '../includes/db.php';
+include '../includes/db.php'; // make sure $conn is your pg connection resource
 
 $user_id = $_SESSION['user_id'];
 
@@ -15,14 +15,15 @@ $sql = "
             LIMIT 1
         ) AS status
     FROM documents d
-    WHERE d.user_id = ?
+    WHERE d.user_id = $1
     ORDER BY d.created_at DESC
 ";
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = pg_query_params($conn, $sql, array($user_id));
+
+if (!$result) {
+    die("Error in SQL query: " . pg_last_error($conn));
+}
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +31,7 @@ $result = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Document Verification Status</title>
-    <link rel="stylesheet" href="../assets/css/users_styles.css">
+    <link rel="stylesheet" href="../assets/css/user_styles.css">
 </head>
 <body>
     <div class="container">
@@ -40,14 +41,14 @@ $result = $stmt->get_result();
 
         <h2>Document Verification Status</h2>
 
-        <?php if ($result->num_rows > 0): ?>
+        <?php if (pg_num_rows($result) > 0): ?>
             <table>
                 <tr>
                     <th>Document Title</th>
                     <th>Uploaded At</th>
                     <th>Status</th>
                 </tr>
-                <?php while ($row = $result->fetch_assoc()): ?>
+                <?php while ($row = pg_fetch_assoc($result)): ?>
                     <tr>
                         <td><?= htmlspecialchars($row['title']) ?></td>
                         <td><?= htmlspecialchars($row['created_at']) ?></td>
@@ -89,7 +90,7 @@ $result = $stmt->get_result();
 </body>
 </html>
 
-<?php 
-$stmt->close(); 
-$conn->close(); 
+<?php
+pg_free_result($result);
+pg_close($conn);
 ?>

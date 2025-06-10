@@ -5,33 +5,35 @@ include '../includes/db.php';
 $user_email = $_SESSION['user_email'];
 
 // Fetch notifications for the user from the notifications table
-$stmt = $conn->prepare("SELECT * FROM notifications WHERE user_email = ? AND role = 'user' ORDER BY created_at DESC");
-$stmt->bind_param("s", $user_email);
-$stmt->execute();
-$result = $stmt->get_result();
+$sql = "SELECT * FROM notifications WHERE user_email = $1 AND role = 'user' ORDER BY created_at DESC";
+$result = pg_query_params($conn, $sql, array($user_email));
+
+if (!$result) {
+    die("Error fetching notifications: " . pg_last_error($conn));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>User Notifications</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/css/users_styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/user_styles.css" />
 </head>
 <body>
     <div class="container">
         <!-- Top Bar -->
         <div class="top-bar">
             <h2>Your Notifications</h2>
-            <img src="../assets/images/hcdrd_logo.png" alt="HCDRD Logo" class="logo">
+            <img src="../assets/images/hcdrd_logo.png" alt="HCDRD Logo" class="logo" />
         </div>
 
-        <?php if ($result->num_rows > 0): ?>
+        <?php if (pg_num_rows($result) > 0): ?>
             <ul>
-                <?php while ($notif = $result->fetch_assoc()): ?>
+                <?php while ($notif = pg_fetch_assoc($result)): ?>
                     <li>
                         <span><?= htmlspecialchars($notif['message']) ?></span>
-                        <small><?= $notif['created_at'] ?></small>
+                        <small><?= htmlspecialchars($notif['created_at']) ?></small>
                     </li>
                 <?php endwhile; ?>
             </ul>
@@ -43,3 +45,8 @@ $result = $stmt->get_result();
     </div>
 </body>
 </html>
+
+<?php
+pg_free_result($result);
+pg_close($conn);
+?>

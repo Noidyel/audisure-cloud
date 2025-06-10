@@ -1,35 +1,118 @@
+/* GENERAL RESET & BODY */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Or change to 'Inter', sans-serif */
     background-color: #f9f9f9;
     margin: 0;
     padding: 0;
     color: #333;
 }
 
+/* SHARED CONTAINER STYLING */
 .container {
     max-width: 900px;
-    margin: 0 auto;
+    margin: 60px auto;
     padding: 30px;
     background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    min-height: 70vh;
 }
 
+/* HEADER AND LOGO */
 header {
     text-align: center;
     margin-bottom: 30px;
 }
 
 .logo {
-    width: 80px;
-    height: auto;
+    height: 60px;
 }
 
+/* TEXT HEADINGS */
 h1, h2, h3 {
     font-weight: normal;
     color: #222;
 }
 
+h2 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* NAVIGATION */
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.admin-nav .nav-btn {
+    text-decoration: none;
+    padding: 14px 20px;
+    background-color: #fff;
+    border: 2px solid #c62828;
+    color: #c62828;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.admin-nav .nav-btn:hover {
+    background-color: #fbeaea;
+    border-color: #a61717;
+    color: #a61717;
+}
+
+/* NOTIFICATION BAR */
+.notification-bar {
+    text-align: right;
+    margin-bottom: 30px;
+}
+
+.notification-bar a {
+    background-color: #c62828;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease-in-out;
+}
+
+.notification-bar a:hover {
+    background-color: #a61717;
+}
+
+/* LOGOUT BUTTON */
+.logout-container {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 30px;
+}
+
+.logout-container a {
+    background-color: #a61717;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease-in-out;
+}
+
+.logout-container a:hover {
+    background-color: #7f0e0e;
+}
+
+/* TABLE STYLES */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -37,7 +120,7 @@ table {
 }
 
 table th, table td {
-    padding: 12px 14px;
+    padding: 14px 16px;
     border: 1px solid #ddd;
     text-align: left;
 }
@@ -45,8 +128,18 @@ table th, table td {
 table th {
     background-color: #dc3545;
     color: #fff;
+    font-weight: normal;
 }
 
+.table-responsive {
+    width: 95%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* STATUS STYLING */
 .status {
     padding: 6px 10px;
     border-radius: 4px;
@@ -69,6 +162,21 @@ table th {
     color: white;
 }
 
+/* FORM ELEMENTS */
+input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-section {
+    margin-top: 20px;
+}
+
+/* BUTTONS */
 button, .back-link {
     background-color: #dc3545;
     color: white;
@@ -84,19 +192,7 @@ button:hover, .back-link:hover {
     background-color: #c82333;
 }
 
-input[type="text"], input[type="password"], select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.form-section {
-    margin-top: 20px;
-}
-
+/* MESSAGES */
 .upload-message {
     background-color: #f8f8f8;
     border-left: 5px solid #dc3545;
@@ -105,16 +201,217 @@ input[type="text"], input[type="password"], select {
     word-break: break-word;
 }
 
-.table-responsive {
+/* LINK STYLING */
+td a {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
+
+/* NOTIFICATIONS LIST (from dashboard_admin.php) */
+.notifications-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 20px;
+}
+
+.notifications-list li {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    background-color: #fafafa;
+    border-left: 5px solid #dc3545;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.notifications-list li small {
+    display: block;
+    color: #777;
+    margin-top: 4px;
+}
+
+.notifications-list a {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.notifications-list a:hover {
+    text-decoration: underline;
+}
+
+/* BACK LINK */
+.back-link {
+    display: inline-block;
+    margin-top: 30px;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 600px) {
+    .container {
+        padding: 25px;
+    }
+
+    .logo {
+        height: 50px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    .admin-nav .nav-btn {
+        font-size: 15px;
+        padding: 12px;
+    }
+
+    .logout-container {
+        justify-content: center;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .notification-bar {
+        width: 100%;
+        text-align: left;
+    }
+}
+
+/* EDIT_TASKS.PHP */
+/* Top bar for edit_tasks.php */
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px;
+}
+
+.top-bar img {
+    height: 50px;
+}
+
+/* Container override for edit_tasks.php */
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* Headings */
+h2 {
+    text-align: center;
+    color: #D62828; /* Red accent */
+    margin-bottom: 25px;
+}
+
+/* Forms */
+form {
+    margin-bottom: 40px;
+}
+
+/* Inputs, textarea, select, button */
+textarea, select, input[type="text"], button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* Buttons */
+button {
+    background-color: #D62828;
+    color: white;
+    font-weight: bold;
+    margin-top: 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #a61717;
+}
+
+/* Back button container */
+.back-button-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Back button */
+.back-button {
+    background-color: #D62828;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.back-button:hover {
+    background-color: #a61717;
+}
+
+/* MANAGE_DOCS.PHP */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+header {
+    background-color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #dc3545;
+}
+
+header h2 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.logo {
+    height: 50px;
+}
+
+.status-message {
+    text-align: center;
+    font-weight: 600;
+    margin: 20px;
+    color: #28a745;
+}
+
+table {
     width: 95%;
-    margin: 0 auto;
+    max-width: 1000px;
+    margin: 30px auto;
     border-collapse: collapse;
     background-color: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 th, td {
-    padding: 14px 16px;
+    padding: 16px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
@@ -128,8 +425,375 @@ th {
 td a {
     color: #dc3545;
     text-decoration: none;
+    word-wrap: break-word;
+    display: block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 td a:hover {
     text-decoration: underline;
+}
+
+.approve-btn, .pending-btn, .reject-btn {
+    padding: 6px 12px;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.approve-btn {
+    background-color: #28a745;
+}
+
+.approve-btn:hover {
+    background-color: #218838;
+}
+
+.pending-btn {
+    background-color: #ffc107;
+}
+
+.pending-btn:hover {
+    background-color: #e0a800;
+}
+
+.reject-btn {
+    background-color: #dc3545;
+}
+
+.reject-btn:hover {
+    background-color: #c82333;
+}
+
+.back-button-container {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.back-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.back-button:hover {
+    background-color: #bb2d3b;
+}
+
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+    }
+
+    th, td {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+/* VERIFY_USERS.PHP */
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px;
+}
+
+.top-bar img {
+    height: 50px;
+}
+
+.content-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+h2 {
+    text-align: center;
+    color: #D62828;
+    margin-bottom: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #D62828;
+    color: white;
+}
+
+td a {
+    color: #D62828;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+td a:hover {
+    text-decoration: underline;
+    color: #a61717;
+}
+
+.back-button-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.back-button {
+    text-decoration: none;
+    background-color: #D62828;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.back-button:hover {
+    background-color: #a61717;
+}
+
+/* ASSIGN_TASKS.PHP */
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.top-bar img {
+    height: 50px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+h2 {
+    text-align: center;
+    color: #D62828;
+    margin-bottom: 25px;
+    font-size: 28px;
+}
+
+.status-message {
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+form {
+    margin-bottom: 40px;
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+label {
+    display: block;
+    margin: 15px 0 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+select, input[type="text"], button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+button {
+    background-color: #D62828;
+    color: white;
+    font-weight: bold;
+    margin-top: 25px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    padding: 14px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #a61717;
+}
+
+.task-list {
+    margin-top: 40px;
+}
+
+.task-list h3 {
+    color: #D62828;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.task-item {
+    background: #f8f8f8;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 6px solid #D62828;
+    border-radius: 6px;
+    position: relative;
+}
+
+.task-item strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.status {
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.status-todo {
+    color: #ffc107;
+}
+
+.status-done {
+    color: #28a745;
+}
+
+.status-archived {
+    color: #6c757d;
+}
+
+.action-links {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.edit-link, .delete-link, .archive-link {
+    font-size: 14px;
+    margin-left: 15px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.edit-link {
+    color: #fff;
+    background-color: #17a2b8;
+}
+
+.edit-link:hover {
+    background-color: #138496;
+}
+
+.delete-link {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.delete-link:hover {
+    background-color: #c82333;
+}
+
+.archive-link {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+.archive-link:hover {
+    background-color: #5a6268;
+}
+
+.back-button-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.back-button {
+    background-color: #D62828;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: #a61717;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        margin: 15px;
+    }
+    
+    .task-item {
+        padding: 15px;
+    }
+    
+    .action-links {
+        position: static;
+        margin-top: 10px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .edit-link, .delete-link, .archive-link {
+        margin-left: 10px;
+    }
 }

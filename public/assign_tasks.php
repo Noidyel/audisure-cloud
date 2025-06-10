@@ -1,11 +1,7 @@
 <?php
 session_start();
 include '../includes/auth_admin.php';
-
-$conn = new mysqli("localhost", "root", "", "audisure_db");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include '../includes/db.php';
 
 $_SESSION['status_message'] = $_SESSION['status_message'] ?? '';
 
@@ -22,15 +18,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($tasks)) {
         $_SESSION['status_message'] = "❌ Please select at least one task";
     } else {
+        $all_successful = true;
         foreach ($tasks as $task) {
             $stmt = $conn->prepare("INSERT INTO tasks (user_email, task_description, status) VALUES (?, ?, 'To-Do')");
             $stmt->bind_param("ss", $user_email, $task);
-            
+
             if ($stmt->execute()) {
                 $task_id = $stmt->insert_id;
                 $task_uid = 'TSK-' . str_pad($task_id, 3, '0', STR_PAD_LEFT);
 
-                $task_uid = 'TSK-' . str_pad($task_id, 3, '0', STR_PAD_LEFT);
                 $update_stmt = $conn->prepare("UPDATE tasks SET task_uid = ? WHERE task_id = ?");
                 $update_stmt->bind_param("si", $task_uid, $task_id);
                 $update_stmt->execute();
@@ -42,13 +38,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $notif_stmt->bind_param("sss", $user_email, $message, $link);
                 $notif_stmt->execute();
                 $notif_stmt->close();
-
-                $_SESSION['status_message'] = "✅ Tasks assigned successfully";
             } else {
-                $_SESSION['status_message'] = "❌ Error assigning tasks";
+                $all_successful = false;
             }
             $stmt->close();
         }
+
+        $_SESSION['status_message'] = $all_successful
+            ? "✅ Tasks assigned successfully"
+            : "❌ Error assigning one or more tasks";
     }
     header("Location: assign_tasks.php");
     exit();
@@ -81,7 +79,8 @@ if (isset($_GET['action'], $_GET['task_id']) && $_GET['action'] === 'archive') {
 
     if ($task_data) {
         $archive_stmt = $conn->prepare("INSERT INTO archived_tasks (original_task_id, user_email, task_description, status, archived_at) VALUES (?, ?, ?, ?, NOW())");
-        $archive_stmt->bind_param('ssss',
+        $archive_stmt->bind_param(
+            'ssss',
             $task_data['task_uid'],
             $task_data['user_email'],
             $task_data['task_description'],
@@ -115,7 +114,7 @@ if (isset($_GET['action'], $_GET['task_id']) && $_GET['action'] === 'archive') {
 }
 
 // Fix any existing tasks without proper task_uid
-$fix_task_uids = $conn->query("SELECT task_id, task_uid FROM tasks WHERE task_uid IS NULL OR task_uid = '' OR task_uid = '0'");
+$fix_task_uids = $conn->query("SELECT task_id FROM tasks WHERE task_uid IS NULL OR task_uid = '' OR task_uid = '0'");
 if ($fix_task_uids && $fix_task_uids->num_rows > 0) {
     while ($row = $fix_task_uids->fetch_assoc()) {
         $task_id = $row['task_id'];
@@ -140,235 +139,6 @@ $task_results = $conn->query("SELECT * FROM tasks ORDER BY assigned_at DESC");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assign Tasks - HCDRD Admin</title>
     <link rel="stylesheet" href="../assets/css/admin_styles.css">
-    <style>
-        .top-bar {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .top-bar img {
-            height: 50px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        h2 {
-            text-align: center;
-            color: #D62828;
-            margin-bottom: 25px;
-            font-size: 28px;
-        }
-
-        .status-message {
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .status-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        form {
-            margin-bottom: 40px;
-            background: #f9f9f9;
-            padding: 25px;
-            border-radius: 8px;
-        }
-
-        label {
-            display: block;
-            margin: 15px 0 5px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        select, input[type="text"], button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        input[type="checkbox"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-
-        button {
-            background-color: #D62828;
-            color: white;
-            font-weight: bold;
-            margin-top: 25px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            padding: 14px;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #a61717;
-        }
-
-        .task-list {
-            margin-top: 40px;
-        }
-
-        .task-list h3 {
-            color: #D62828;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .task-item {
-            background: #f8f8f8;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 6px solid #D62828;
-            border-radius: 6px;
-            position: relative;
-        }
-
-        .task-item strong {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-
-        .status {
-            font-weight: bold;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .status-todo {
-            color: #ffc107;
-        }
-
-        .status-done {
-            color: #28a745;
-        }
-
-        .status-archived {
-            color: #6c757d;
-        }
-
-        .action-links {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-        }
-
-        .edit-link, .delete-link, .archive-link {
-            font-size: 14px;
-            margin-left: 15px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .edit-link {
-            color: #fff;
-            background-color: #17a2b8;
-        }
-
-        .edit-link:hover {
-            background-color: #138496;
-        }
-
-        .delete-link {
-            color: #fff;
-            background-color: #dc3545;
-        }
-
-        .delete-link:hover {
-            background-color: #c82333;
-        }
-
-        .archive-link {
-            color: #fff;
-            background-color: #6c757d;
-        }
-
-        .archive-link:hover {
-            background-color: #5a6268;
-        }
-
-        .back-button-container {
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        .back-button {
-            background-color: #D62828;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.2s;
-        }
-
-        .back-button:hover {
-            background-color: #a61717;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-                margin: 15px;
-            }
-            
-            .task-item {
-                padding: 15px;
-            }
-            
-            .action-links {
-                position: static;
-                margin-top: 10px;
-                display: flex;
-                justify-content: flex-end;
-            }
-            
-            .edit-link, .delete-link, .archive-link {
-                margin-left: 10px;
-            }
-        }
-    </style>
 </head>
 <body>
 
@@ -413,7 +183,6 @@ $task_results = $conn->query("SELECT * FROM tasks ORDER BY assigned_at DESC");
         <h3>Recently Assigned Tasks</h3>
         <?php while ($task = $task_results->fetch_assoc()): ?>
             <?php 
-                // Make sure task_uid is correctly formatted
                 $display_task_uid = !empty($task['task_uid']) ? $task['task_uid'] : 'TSK-' . str_pad($task['task_id'], 3, '0', STR_PAD_LEFT);
             ?>
             <div class="task-item">

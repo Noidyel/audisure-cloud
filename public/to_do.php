@@ -1,6 +1,6 @@
 <?php
 include '../includes/auth_user.php';
-include '../includes/db.php';
+include '../includes/db.php'; // $conn is pg connection resource
 
 if (!isset($_SESSION['user_email'])) {
     echo "Error: User email not found in session.";
@@ -14,9 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_id'], $_POST['st
     $task_id = (int)$_POST['task_id'];
     $status = $_POST['status'];
 
-    $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE task_id = ?");
-    $stmt->bind_param('si', $status, $task_id);
-    $stmt->execute();
+    $update_sql = "UPDATE tasks SET status = $1 WHERE task_id = $2";
+    $update_result = pg_query_params($conn, $update_sql, array($status, $task_id));
+
+    if (!$update_result) {
+        die("Error updating task status: " . pg_last_error($conn));
+    }
 
     header("Location: todo_list.php");
     exit;
@@ -27,31 +30,34 @@ if (isset($_GET['action'], $_GET['task_id'])) {
     $task_id = (int)$_GET['task_id'];
     $action = $_GET['action'];
 
-// In the archiving section, modify this part:
     if ($action === 'archive') {
-        // Get the task data first - include task_uid in the SELECT
-        $stmt = $conn->prepare("SELECT task_uid, user_email, task_description, status FROM tasks WHERE task_id = ?");
-        $stmt->bind_param('i', $task_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $task = $result->fetch_assoc();
-        $stmt->close();
-    
-        if ($task) {
+        // Get the task data first - include task_uid in SELECT
+        $select_sql = "SELECT task_uid, user_email, task_description, status FROM tasks WHERE task_id = $1";
+        $select_result = pg_query_params($conn, $select_sql, array($task_id));
+
+        if ($select_result && pg_num_rows($select_result) > 0) {
+            $task = pg_fetch_assoc($select_result);
+
             // Insert into archived_tasks - use task_uid instead of id
-            $archive_stmt = $conn->prepare("INSERT INTO archived_tasks (original_task_id, user_email, task_description, status, archived_at) VALUES (?, ?, ?, ?, NOW())");
-            $archive_stmt->bind_param('ssss', 
+            $insert_sql = "INSERT INTO archived_tasks (original_task_id, user_email, task_description, status, archived_at) VALUES ($1, $2, $3, $4, NOW())";
+            $insert_result = pg_query_params($conn, $insert_sql, array(
                 $task['task_uid'],
                 $task['user_email'],
                 $task['task_description'],
                 $task['status']
-            );            
+            ));
+
+            if (!$insert_result) {
+                die("Error archiving task: " . pg_last_error($conn));
+            }
 
             // Delete from tasks table
-            $delete_stmt = $conn->prepare("DELETE FROM tasks WHERE task_id = ?");
-            $delete_stmt->bind_param('i', $task_id);
-            $delete_stmt->execute();
-            $delete_stmt->close();
+            $delete_sql = "DELETE FROM tasks WHERE task_id = $1";
+            $delete_result = pg_query_params($conn, $delete_sql, array($task_id));
+
+            if (!$delete_result) {
+                die("Error deleting task: " . pg_last_error($conn));
+            }
         }
     }
 
@@ -60,11 +66,12 @@ if (isset($_GET['action'], $_GET['task_id'])) {
 }
 
 // Fetch tasks
-$sql = "SELECT * FROM tasks WHERE user_email = ? ORDER BY assigned_at DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('s', $user_email);
-$stmt->execute();
-$task_results = $stmt->get_result();
+$fetch_sql = "SELECT * FROM tasks WHERE user_email = $1 ORDER BY assigned_at DESC";
+$task_results = pg_query_params($conn, $fetch_sql, array($user_email));
+
+if (!$task_results) {
+    die("Error fetching tasks: " . pg_last_error($conn));
+}
 ?>
 
 <!DOCTYPE html>
@@ -72,7 +79,7 @@ $task_results = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <title>To-Do List</title>
-    <link rel="stylesheet" href="../assets/css/users_styles.css">
+    <link rel="stylesheet" href="../assets/css/user_styles.css">
 </head>
 <body>
 <div class="container">
@@ -86,14 +93,14 @@ $task_results = $stmt->get_result();
         <p><strong>Reminder:</strong> Update your tasks using the available actions below.</p>
     </div>
 
-    <?php if ($task_results->num_rows > 0): ?>
+    <?php if (pg_num_rows($task_results) > 0): ?>
         <table>
             <tr>
                 <th>Task Description</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
-            <?php while ($task = $task_results->fetch_assoc()): ?>
+            <?php while ($task = pg_fetch_assoc($task_results)): ?>
                 <tr>
                     <td><?= htmlspecialchars($task['task_description']) ?></td>
                     <td><?= htmlspecialchars($task['status']) ?></td>
@@ -128,4 +135,7 @@ $task_results = $stmt->get_result();
 </body>
 </html>
 
-<?php $conn->close(); ?>
+<?php
+pg_free_result($task_results);
+pg_close($conn);
+?>
